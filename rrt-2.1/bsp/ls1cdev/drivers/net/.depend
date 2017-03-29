@@ -1,0 +1,44 @@
+synopGMAC_Dev.o: synopGMAC_Dev.c synopGMAC_Dev.h synopGMAC_plat.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/types.h
+synopGMAC_plat.o: synopGMAC_plat.c synopGMAC_plat.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/types.h
+synopGMAC_network_interface.o: synopGMAC_network_interface.c \
+  synopGMAC_network_interface.h synopGMAC_plat.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/types.h \
+  synopGMAC_Host.h synopGMAC_Dev.h mii.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/common.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/config.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/configs/ls1a.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/config_cmd_default.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/bitops.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/bitops.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/types.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/config.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/posix_types.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/stddef.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/posix_types.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/byteorder.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/byteorder/little_endian.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/byteorder/swab.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/byteorder/generic.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/sgidefs.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/system.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/ptrace.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/isadep.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/string.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/string.h \
+  /opt/gcc-4.3-ls232-softfloat/lib/gcc/mipsel-linux/4.3.0/include/stdarg.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/part.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/ide.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/flash.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/image.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/lmb.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/u-boot.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/command.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/global_data.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/asm/regdef.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/iomux.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/devices.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/list.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/linux/poison.h \
+  /home/sun/桌面/loongson/uboot/U-boot/include/net.h mii.c

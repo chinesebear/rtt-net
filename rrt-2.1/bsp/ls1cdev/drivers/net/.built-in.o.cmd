@@ -1,0 +1,1 @@
+cmd_drivers/net/gmac/built-in.o :=  mipsel-linux-ld   -G 0 -static -n -nostdlib -EL   -r -o drivers/net/gmac/built-in.o drivers/net/gmac/synopGMAC_Dev.o drivers/net/gmac/synopGMAC_plat.o drivers/net/gmac/synopGMAC_network_interface.o 
