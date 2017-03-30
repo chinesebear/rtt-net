@@ -22,7 +22,7 @@
 u32 regbase = 0xbfe10000;   
 static u32 GMAC_Power_down;
 
-void eth_rx_irq(void *param);
+void eth_rx_irq(int irqno,void *param);
 static char Rx_Buffer[Buffer_Size];
 static char Tx_Buffer[Buffer_Size];
 
@@ -78,7 +78,7 @@ s32 synopGMAC_setup_tx_desc_queue(synopGMACdevice * gmacdev,u32 no_of_desc, u32 
 	dma_addr_t dma_addr;
 	gmacdev->TxDescCount = 0;
 
-	first_desc = plat_alloc_consistent_dmaable_memory (gmacdev, sizeof(DmaDesc) * no_of_desc,&dma_addr);
+	first_desc = (DmaDesc *)plat_alloc_consistent_dmaable_memory (gmacdev, sizeof(DmaDesc) * no_of_desc,&dma_addr);
 	if(first_desc == NULL){
 		rt_kprintf("Error in Tx Descriptors memory allocation\n");
 		return -ESYNOPGMACNOMEM;
@@ -153,7 +153,7 @@ s32 synopGMAC_setup_rx_desc_queue(synopGMACdevice * gmacdev,u32 no_of_desc, u32 
 
 //	rt_kprintf("sizeof(DmaDesc) = %d, no_of_desc = %d\n", sizeof(DmaDesc),no_of_desc);
 //	rt_kprintf("sizeof(DmaDesc) * no_of_desc = %d\n",sizeof(DmaDesc) * no_of_desc);
-	first_desc = plat_alloc_consistent_dmaable_memory (gmacdev, sizeof(DmaDesc) * no_of_desc, &dma_addr);
+	first_desc =(DmaDesc *)plat_alloc_consistent_dmaable_memory (gmacdev, sizeof(DmaDesc) * no_of_desc, &dma_addr);
 	if(first_desc == NULL){
 		rt_kprintf("Error in Rx Descriptor Memory allocation in Ring mode\n");
 		return -ESYNOPGMACNOMEM;
@@ -319,7 +319,7 @@ static rt_err_t eth_init(rt_device_t device )
 	u32 skb;
 	do{
 		skb = (u32)plat_alloc_memory(RX_BUF_SIZE);      //should skb aligned here?
-		if(skb == NULL){
+		if(skb == RT_NULL){
 			rt_kprintf("ERROR in skb buffer allocation\n");
 			break;
 		}
@@ -502,7 +502,7 @@ static rt_size_t eth_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_size_t
 	return 0;   
 }
 
-static rt_size_t eth_write(rt_off_t pos, rt_device_t dev, void* buffer, rt_size_t size)
+static rt_size_t eth_write(rt_device_t dev, rt_off_t pos, const void* buffer, rt_size_t size)
 {
 	rt_set_errno(-RT_ENOSYS);
 	return 0;   
@@ -591,7 +591,7 @@ rt_err_t rt_eth_tx(rt_device_t device, struct pbuf* p)
 
 		s32 desc_index;
 		u32 data1, data2;
-		u64 dma_addr1, dma_addr2;
+		u32 dma_addr1, dma_addr2;
 		u32 length1, length2;
 #ifdef ENH_DESC_8W
 		u32 ext_status;
@@ -653,8 +653,8 @@ struct pbuf *rt_eth_rx(rt_device_t device)
 	u32 data2;
 	u32 len; 
 	u32 status;
-	u64 dma_addr1;
-	u64 dma_addr2;
+	u32 dma_addr1;
+	u32 dma_addr2;
 	struct pbuf *pbuf = RT_NULL;
 	rt_sem_take(&sem_lock, RT_WAITING_FOREVER);
 
@@ -863,7 +863,7 @@ static int mdio_read(synopGMACPciNetworkAdapter *adapter, int addr, int reg)
 	u16 data;
 	gmacdev = adapter->synopGMACdev;
 
-	synopGMAC_read_phy_reg((u32 *)gmacdev->MacBase,addr,reg, &data);
+	synopGMAC_read_phy_reg(gmacdev->MacBase,addr,reg, &data);
 	return data;
 }
 
@@ -871,7 +871,7 @@ static void mdio_write(synopGMACPciNetworkAdapter *adapter, int addr, int reg, i
 {
 	synopGMACdevice * gmacdev;
 	gmacdev = adapter->synopGMACdev;
-	synopGMAC_write_phy_reg((u32 *)gmacdev->MacBase,addr,reg,data);
+	synopGMAC_write_phy_reg(gmacdev->MacBase,addr,reg,data);
 }
 
 void eth_rx_irq1(int vector, void *param)
@@ -889,7 +889,7 @@ void eth_rx_irq1(int vector, void *param)
 	//	rt_kprintf("*(0xbfd01060) = 0x%x\n", *(volatile u32 *)0xbfd01060);
 }
 
-void eth_rx_irq(void *param)
+void eth_rx_irq(int irqno,void *param)
 {
 	struct rt_eth_dev *dev = &eth_dev;
 	struct synopGMACNetworkAdapter *adapter = dev->priv;
@@ -906,7 +906,7 @@ void eth_rx_irq(void *param)
 	u32 dma_addr;
 
 	//	rt_kprintf("irq i = %d\n", i++);
-	dma_status_reg = synopGMACReadReg((u32 *)gmacdev->DmaBase, DmaStatus);
+	dma_status_reg = synopGMACReadReg(gmacdev->DmaBase, DmaStatus);
 	if(dma_status_reg == 0)
 	{
 		rt_kprintf("dma_status ==0 \n");
@@ -916,7 +916,7 @@ void eth_rx_irq(void *param)
 //	rt_kprintf("dma_status_reg is 0x%x\n", dma_status_reg);
 	u32 gmacstatus;
 	synopGMAC_disable_interrupt_all(gmacdev);
-	gmacstatus = synopGMACReadReg((u32 *)gmacdev->MacBase,GmacStatus);
+	gmacstatus = synopGMACReadReg(gmacdev->MacBase,GmacStatus);
 
 	if(dma_status_reg & GmacPmtIntr){
 		rt_kprintf("%s:: Interrupt due to PMT module\n",__FUNCTION__);
@@ -1111,5 +1111,5 @@ void rt_hw_eth_init(void)
 	eth_dev.parent.eth_tx            = rt_eth_tx;
 	eth_dev.parent.eth_rx            = rt_eth_rx;
 
-	eth_device_init(&(eth_dev.parent.parent), "e0");
+	eth_device_init(&(eth_dev.parent), "e0");
 }

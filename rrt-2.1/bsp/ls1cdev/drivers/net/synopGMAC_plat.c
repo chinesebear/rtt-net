@@ -11,12 +11,13 @@
  */
  
 #include "synopGMAC_plat.h"
-
+#include "synopGMAC_Dev.h"
 dma_addr_t __attribute__((weak)) gmac_dmamap(unsigned long va,u32 size)
 {
 	return VA_TO_PA (va);
 	//return UNCACHED_TO_PHYS(va);
 }
+
 
 
 /**
@@ -41,7 +42,7 @@ void *plat_alloc_memory(u32 bytes)
   */
 
 //void *plat_alloc_consistent_dmaable_memory(struct synopGMACdevice *dev, u32 size, u32 *addr) 
-void *plat_alloc_consistent_dmaable_memory(struct pci_dev *pcidev, u32 size, u32 *addr) 
+void *plat_alloc_consistent_dmaable_memory(synopGMACdevice *pcidev, u32 size, u32 *addr) 
 {
 	void *buf;
 	buf = (void*)malloc((u32)(size+16));
@@ -76,7 +77,7 @@ void *plat_alloc_consistent_dmaable_memory(struct pci_dev *pcidev, u32 size, u32
 
 
 //void plat_free_consistent_dmaable_memory(void * addr) 
-void plat_free_consistent_dmaable_memory(struct pci_dev *pcidev, u32 size, void * addr,u32 dma_addr) 
+void plat_free_consistent_dmaable_memory(synopGMACdevice *pcidev, u32 size, void * addr,u32 dma_addr) 
 {
 	free(PHYS_TO_CACHED(UNCACHED_TO_PHYS(addr)));
  return;

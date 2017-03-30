@@ -35,7 +35,7 @@ static int mii_check_gmii_support(struct mii_if_info *mii)
 
 static int mii_ethtool_gset(struct mii_if_info *mii, struct ethtool_cmd *ecmd)
 {
-	struct net_device *dev = mii->dev;
+	struct synopGMACNetworkAdapter * dev = mii->dev;
 	u32 advert, bmcr, lpa, nego;
 	u32 advert2 = 0, bmcr2 = 0, lpa2 = 0;
 
