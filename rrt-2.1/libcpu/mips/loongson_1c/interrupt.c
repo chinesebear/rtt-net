@@ -51,12 +51,17 @@ void rt_hw_interrupt_init(void)
 {
     rt_int32_t idx;
 
+	(ls1c_hw0_icregs+0)->int_en = 0x0;
+	(ls1c_hw0_icregs+1)->int_en = 0x0;
     /* pci active low */
-    ls1c_hw0_icregs->int_pol = -1;	   //must be done here 20110802 lgnq
+    (ls1c_hw0_icregs+0)->int_pol = -1;	   //must be done here 20110802 lgnq
+    (ls1c_hw0_icregs+1)->int_pol = -1;	   //must be done here 20110802 lgnq
     /* make all interrupts level triggered */
     (ls1c_hw0_icregs+0)->int_edge = 0x0000e000;
+	(ls1c_hw0_icregs+1)->int_edge = 0x00000004;
     /* mask all interrupts */
     (ls1c_hw0_icregs+0)->int_clr = 0xffffffff;
+    (ls1c_hw0_icregs+1)->int_clr = 0xffffffff;
 
     rt_memset(irq_handle_table, 0x00, sizeof(irq_handle_table));
     for (idx = 0; idx < MAX_INTR; idx ++)
@@ -105,12 +110,15 @@ rt_isr_handler_t rt_hw_interrupt_install(int vector, rt_isr_handler_t handler,
     {
         old_handler = irq_handle_table[vector].handler;
 
+		if (handler != RT_NULL)
+		{
 #ifdef RT_USING_INTERRUPT_INFO
-        rt_strncpy(irq_handle_table[vector].name, name, RT_NAME_MAX);
+			rt_strncpy(irq_handle_table[vector].name, name, RT_NAME_MAX);
 #endif /* RT_USING_INTERRUPT_INFO */
-        irq_handle_table[vector].handler = handler;
-        irq_handle_table[vector].param = param;
-    }
+			irq_handle_table[vector].handler = handler;
+			irq_handle_table[vector].param = param;
+		}
+	}
 
     return old_handler;
 }
@@ -126,7 +134,7 @@ void rt_interrupt_dispatch(void *ptreg)
     volatile rt_uint32_t cause_im;
     volatile rt_uint32_t status_im;
     rt_uint32_t pending_im;
-
+	int irqbitpos=0;
     /* check os timer */
     c0_status = read_c0_status();
     c0_cause = read_c0_cause();
@@ -147,7 +155,7 @@ void rt_interrupt_dispatch(void *ptreg)
         if (!status)
             return;
 
-        for (irq = MAX_INTR; irq > 0; --irq)
+        for (irq = 0; irq < 32; irq++)
         {
             if ((status & (1 << irq)))
             {
@@ -170,7 +178,34 @@ void rt_interrupt_dispatch(void *ptreg)
     }
     else if (pending_im & CAUSEF_IP3)
     {
-        rt_kprintf("%s %d\r\n", __FUNCTION__, __LINE__);
+        
+        /* the hardware interrupt */
+        status = ls1c_hw0_icregs->int_isr;
+        if (!status)
+            return;
+
+         for (irq = 32; irq < 64; irq++)
+        {
+			irqbitpos = irq-32;
+			if ((status & (1 << irqbitpos)))
+            {
+                status &= ~(1 << irqbitpos);
+
+                irq_func = irq_handle_table[irq].handler;
+                param = irq_handle_table[irq].param;
+
+                /* do interrupt */
+                irq_func(irq, param);
+
+#ifdef RT_USING_INTERRUPT_INFO
+                irq_handle_table[irq].counter++;
+#endif /* RT_USING_INTERRUPT_INFO */
+
+                /* ack interrupt */
+                ls1c_hw0_icregs->int_clr |= (1 << irqbitpos);
+            }
+        }
+        //rt_kprintf("%s %d\r\n", __FUNCTION__, __LINE__);
     }
     else if (pending_im & CAUSEF_IP4)
     {
