@@ -10,6 +10,9 @@
  * Synopsys                 01/Aug/2007                              Created
  */
 #include "synopGMAC_Dev.h"
+#include <rthw.h>
+#include <rtthread.h>
+
 #define UNUSED	1
 
 /**
@@ -1206,7 +1209,7 @@ s32 synopGMAC_get_mac_addr(synopGMACdevice *gmacdev, u32 MacHigh, u32 MacLow, u8
 s32 synopGMAC_attach (synopGMACdevice * gmacdev, u32 macBase, u32 dmaBase, u32 phyBase,u8 *mac_addr)
 {
 	/*Make sure the Device data strucure is cleared before we proceed further*/
-	memset((void *) gmacdev,0,sizeof(synopGMACdevice));
+	rt_memset((void *) gmacdev,0,sizeof(synopGMACdevice));
 	/*Populate the mac and dma base addresses*/
 	gmacdev->MacBase = macBase;
 	gmacdev->DmaBase = dmaBase;

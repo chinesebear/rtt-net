@@ -21,6 +21,10 @@
 
 u32 regbase = 0xbfe10000;   
 static u32 GMAC_Power_down;
+extern void *plat_alloc_consistent_dmaable_memory(synopGMACdevice *pcidev, u32 size, u32 *addr) ;
+extern s32 synopGMAC_check_phy_init (synopGMACPciNetworkAdapter *adapter) ;
+extern int init_phy(synopGMACdevice *gmacdev);
+dma_addr_t plat_dma_map_single(void *hwdev, void *ptr,u32 size);
 
 void eth_rx_irq(int irqno,void *param);
 static char Rx_Buffer[Buffer_Size];
@@ -324,7 +328,7 @@ static rt_err_t eth_init(rt_device_t device )
 			break;
 		}
 
-		dma_addr = plat_dma_map_single(gmacdev,skb,RX_BUF_SIZE,0);	//获取 skb 的 dma 地址
+		dma_addr = plat_dma_map_single(gmacdev,(void *)skb,RX_BUF_SIZE);	//获取 skb 的 dma 地址
 
 		status = synopGMAC_set_rx_qptr(gmacdev,dma_addr,RX_BUF_SIZE,(u32)skb,0,0,0);
 		if(status < 0) 
@@ -577,7 +581,7 @@ rt_err_t rt_eth_tx(rt_device_t device, struct pbuf* p)
 
 			DEBUG_MES("p->len = %d\n", p->len);
 			memcpy((void *)pbuf, p->payload, p->len);
-			dma_addr = plat_dma_map_single(gmacdev,pbuf,p->len);
+			dma_addr = plat_dma_map_single(gmacdev,(void*)pbuf,p->len);
 
 			status = synopGMAC_set_tx_qptr(gmacdev,dma_addr,p->len,pbuf,0,0,0,offload_needed,&index,dpr);
 			if(status < 0){
@@ -661,13 +665,13 @@ struct pbuf *rt_eth_rx(rt_device_t device)
 	adapter = (struct synopGMACNetworkAdapter *) dev->priv;
 	if(adapter == NULL){
 		rt_kprintf("%S : Unknown Device !!\n", __FUNCTION__);
-		return;
+		return NULL;
 	}
 
 	gmacdev = (synopGMACdevice *) adapter->synopGMACdev;
 	if(gmacdev == NULL){
 		rt_kprintf("%s : GMAC device structure is missing\n", __FUNCTION__);
-		return;
+		return NULL;
 	}
 
 	/*Handle the Receive Descriptors*/
@@ -688,7 +692,7 @@ struct pbuf *rt_eth_rx(rt_device_t device)
 			;
 #endif
 
-			dma_addr1 =  plat_dma_map_single(gmacdev,data1,RX_BUF_SIZE,0);
+			dma_addr1 =  plat_dma_map_single(gmacdev,(void*)data1,RX_BUF_SIZE);
 			//len =  synopGMAC_get_rx_desc_frame_length(status) - 4; //Not interested in Ethernet CRC bytes
 			len =  synopGMAC_get_rx_desc_frame_length(status); //Not interested in Ethernet CRC bytes
 			//				bcopy((char *)data1, mtod(skb, char *), len);
