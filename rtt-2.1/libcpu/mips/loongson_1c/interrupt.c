@@ -180,16 +180,15 @@ void rt_interrupt_dispatch(void *ptreg)
     {
         
         /* the hardware interrupt */
-        status = ls1c_hw0_icregs->int_isr;
+        status = (ls1c_hw0_icregs+1)->int_isr;
         if (!status)
             return;
 
          for (irq = 32; irq < 64; irq++)
         {
-			irqbitpos = irq-32;
-			if ((status & (1 << irqbitpos)))
+			if ((status & (1 << (irq&0x1f))))
             {
-                status &= ~(1 << irqbitpos);
+                status &= ~(1 << (irq&0x1f));
 
                 irq_func = irq_handle_table[irq].handler;
                 param = irq_handle_table[irq].param;
@@ -202,7 +201,7 @@ void rt_interrupt_dispatch(void *ptreg)
 #endif /* RT_USING_INTERRUPT_INFO */
 
                 /* ack interrupt */
-                ls1c_hw0_icregs->int_clr |= (1 << irqbitpos);
+                (ls1c_hw0_icregs+1)->int_clr |= (1 << (irq&0x1f));
             }
         }
         //rt_kprintf("%s %d\r\n", __FUNCTION__, __LINE__);

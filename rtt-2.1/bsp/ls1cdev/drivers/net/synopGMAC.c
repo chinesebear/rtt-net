@@ -6,7 +6,7 @@
 #include "synopGMAC.h"
 #include "mii.c"
 #include "debug.h"
-
+#include <ls1c.h>
 #define RMII
 
 #define Gmac_base			0xbfe10000
@@ -191,7 +191,7 @@ void synopGMAC_linux_cable_unplug_function(void *adaptr)
 	synopGMACdevice            *gmacdev = adapter->synopGMACdev;
 	struct ethtool_cmd cmd;
 
-//	rt_kprintf("%s\n",__FUNCTION__);
+	//rt_kprintf("%s\n",__FUNCTION__);
 	if(!mii_link_ok(&adapter->mii)){
 		if(gmacdev->LinkState)
 			rt_kprintf("\r\nNo Link\r\n");
@@ -370,8 +370,8 @@ static rt_err_t eth_init(rt_device_t device )
 #ifdef RT_USING_GMAC_INT_MODE
 	/* installl isr */
 	DEBUG_MES("%s\n", __FUNCTION__);
-	rt_hw_interrupt_install(35, eth_rx_irq, RT_NULL, "e0_isr");
-	rt_hw_interrupt_umask(35);
+	rt_hw_interrupt_install(LS1C_GMAC1_IRQ, eth_rx_irq, RT_NULL, "e0_isr");
+	rt_hw_interrupt_umask(LS1C_GMAC1_IRQ);
 #else
 	rt_timer_init(&dev->rx_poll_timer, "rx_poll_timer",
 			eth_rx_irq,
@@ -897,7 +897,7 @@ void eth_rx_irq(int irqno,void *param)
 {
 	struct rt_eth_dev *dev = &eth_dev;
 	struct synopGMACNetworkAdapter *adapter = dev->priv;
-//	DEBUG_MES("in irq!!\n");
+	DEBUG_MES("in irq!!\n");
 #ifdef RT_USING_GMAC_INT_MODE
 	int i ;
 	for(i = 0; i < 7200; i++)
