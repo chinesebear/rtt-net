@@ -31,7 +31,7 @@ void rt_interrupt_dispatch(void *ptreg);
 void rt_hw_timer_handler();
 
 static struct ls1c_intc_regs volatile *ls1c_hw0_icregs
-= (struct ls1c_intc_regs volatile *)(LS1C_INTREG_BASE);
+= (struct ls1c_intc_regs volatile *)(LS1C_INT0_BASE);
 
 /**
  * @addtogroup Loongson LS1B
@@ -192,7 +192,7 @@ void rt_interrupt_dispatch(void *ptreg)
 
                 irq_func = irq_handle_table[irq].handler;
                 param = irq_handle_table[irq].param;
-
+				rt_kprintf("irq=%d\r\n", irq);
                 /* do interrupt */
                 irq_func(irq, param);
 

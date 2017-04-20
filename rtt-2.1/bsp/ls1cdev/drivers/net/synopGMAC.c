@@ -370,8 +370,8 @@ static rt_err_t eth_init(rt_device_t device )
 #ifdef RT_USING_GMAC_INT_MODE
 	/* installl isr */
 	DEBUG_MES("%s\n", __FUNCTION__);
-	rt_hw_interrupt_install(LS1C_GMAC1_IRQ, eth_rx_irq, RT_NULL, "e0_isr");
-	rt_hw_interrupt_umask(LS1C_GMAC1_IRQ);
+	rt_hw_interrupt_install(LS1C_MAC_IRQ, eth_rx_irq, RT_NULL, "e0_isr");
+	rt_hw_interrupt_umask(LS1C_MAC_IRQ);
 #else
 	rt_timer_init(&dev->rx_poll_timer, "rx_poll_timer",
 			eth_rx_irq,
@@ -909,7 +909,7 @@ void eth_rx_irq(int irqno,void *param)
 	s32 status;
 	u32 dma_addr;
 
-	//	rt_kprintf("irq i = %d\n", i++);
+	rt_kprintf("irq i = %d\n", i++);
 	dma_status_reg = synopGMACReadReg(gmacdev->DmaBase, DmaStatus);
 	if(dma_status_reg == 0)
 	{
@@ -917,14 +917,14 @@ void eth_rx_irq(int irqno,void *param)
 		return;
 	}
 
-//	rt_kprintf("dma_status_reg is 0x%x\n", dma_status_reg);
+	rt_kprintf("dma_status_reg is 0x%x\n", dma_status_reg);
 	u32 gmacstatus;
 	synopGMAC_disable_interrupt_all(gmacdev);
 	gmacstatus = synopGMACReadReg(gmacdev->MacBase,GmacStatus);
 
 	if(dma_status_reg & GmacPmtIntr){
 		rt_kprintf("%s:: Interrupt due to PMT module\n",__FUNCTION__);
-		//		synopGMAC_linux_powerup_mac(gmacdev);
+		//synopGMAC_linux_powerup_mac(gmacdev);
 	} 
 	if(dma_status_reg & GmacMmcIntr){
 		rt_kprintf("%s:: Interrupt due to MMC module\n",__FUNCTION__);
@@ -937,7 +937,7 @@ void eth_rx_irq(int irqno,void *param)
 	}
 
 	interrupt = synopGMAC_get_interrupt_type(gmacdev);
-	//	rt_kprintf("%s:Interrupts to be handled: 0x%08x\n",__FUNCTION__,interrupt);
+	rt_kprintf("%s:Interrupts to be handled: 0x%08x\n",__FUNCTION__,interrupt);
 	if(interrupt & synopGMACDmaError){
 		u8 mac_addr0[6];
 		rt_kprintf("%s::Fatal Bus Error Inetrrupt Seen\n",__FUNCTION__);
@@ -965,12 +965,12 @@ void eth_rx_irq(int irqno,void *param)
 	}
 	if(interrupt & synopGMACDmaRxNormal){
 		DEBUG_MES("%s:: Rx Normal \n", __FUNCTION__);
-		//			synop_handle_received_data(netdev);
+		//synop_handle_received_data(netdev);
 		eth_device_ready(&eth_dev.parent);
 	}
 	if(interrupt & synopGMACDmaRxAbnormal){
 		rt_kprintf("%s::Abnormal Rx Interrupt Seen\n",__FUNCTION__);
-		//	rt_kprintf("Gmac_intr: dma_status = 0x%08x\n",dma_status_reg);
+		rt_kprintf("Gmac_intr: dma_status = 0x%08x\n",dma_status_reg);
 #if 0
 		rt_kprintf("gmacdev->DmaBase = 0x%x\n", gmacdev->DmaBase);
 		rt_kprintf("gmacstatus = 0x%x\n", gmacstatus);

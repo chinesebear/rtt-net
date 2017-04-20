@@ -26,7 +26,7 @@
 //#include "mii.h"
 //#include "GMAC_Pmon.h"
 //#include "synopGMAC_Host.h"
-
+#include <rtthread.h>
 //sw:	copy the type define into here
 #define IOCTL_READ_REGISTER  SIOCDEVPRIVATE+1
 #define IOCTL_WRITE_REGISTER SIOCDEVPRIVATE+2
@@ -101,8 +101,8 @@ typedef int bool;
 */
 
 //sw: nothing to display
-#define TR0(fmt, args...) //printf(fmt, ##args)		
-#define TR(fmt, args...) //printf(fmt, ##args) 
+#define TR0(fmt, args...) rt_kprintf(fmt, ##args)		
+#define TR(fmt, args...)  rt_kprintf(fmt, ##args) 
 //#define TR rt_kprintf
 
 //typedef int bool;
