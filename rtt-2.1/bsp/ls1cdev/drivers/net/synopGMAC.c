@@ -897,7 +897,7 @@ void eth_rx_irq(int irqno,void *param)
 {
 	struct rt_eth_dev *dev = &eth_dev;
 	struct synopGMACNetworkAdapter *adapter = dev->priv;
-	DEBUG_MES("in irq!!\n");
+	//DEBUG_MES("in irq!!\n");
 #ifdef RT_USING_GMAC_INT_MODE
 	int i ;
 	for(i = 0; i < 7200; i++)
@@ -909,7 +909,7 @@ void eth_rx_irq(int irqno,void *param)
 	s32 status;
 	u32 dma_addr;
 
-	rt_kprintf("irq i = %d\n", i++);
+	//rt_kprintf("irq i = %d\n", i++);
 	dma_status_reg = synopGMACReadReg(gmacdev->DmaBase, DmaStatus);
 	if(dma_status_reg == 0)
 	{
@@ -917,7 +917,7 @@ void eth_rx_irq(int irqno,void *param)
 		return;
 	}
 
-	rt_kprintf("dma_status_reg is 0x%x\n", dma_status_reg);
+	//rt_kprintf("dma_status_reg is 0x%x\n", dma_status_reg);
 	u32 gmacstatus;
 	synopGMAC_disable_interrupt_all(gmacdev);
 	gmacstatus = synopGMACReadReg(gmacdev->MacBase,GmacStatus);
@@ -937,7 +937,7 @@ void eth_rx_irq(int irqno,void *param)
 	}
 
 	interrupt = synopGMAC_get_interrupt_type(gmacdev);
-	rt_kprintf("%s:Interrupts to be handled: 0x%08x\n",__FUNCTION__,interrupt);
+	//rt_kprintf("%s:Interrupts to be handled: 0x%08x\n",__FUNCTION__,interrupt);
 	if(interrupt & synopGMACDmaError){
 		u8 mac_addr0[6];
 		rt_kprintf("%s::Fatal Bus Error Inetrrupt Seen\n",__FUNCTION__);
@@ -964,13 +964,13 @@ void eth_rx_irq(int irqno,void *param)
 
 	}
 	if(interrupt & synopGMACDmaRxNormal){
-		DEBUG_MES("%s:: Rx Normal \n", __FUNCTION__);
+		//DEBUG_MES("%s:: Rx Normal \n", __FUNCTION__);
 		//synop_handle_received_data(netdev);
 		eth_device_ready(&eth_dev.parent);
 	}
 	if(interrupt & synopGMACDmaRxAbnormal){
 		rt_kprintf("%s::Abnormal Rx Interrupt Seen\n",__FUNCTION__);
-		rt_kprintf("Gmac_intr: dma_status = 0x%08x\n",dma_status_reg);
+		//rt_kprintf("Gmac_intr: dma_status = 0x%08x\n",dma_status_reg);
 #if 0
 		rt_kprintf("gmacdev->DmaBase = 0x%x\n", gmacdev->DmaBase);
 		rt_kprintf("gmacstatus = 0x%x\n", gmacstatus);

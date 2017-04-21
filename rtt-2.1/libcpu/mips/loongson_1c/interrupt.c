@@ -19,7 +19,7 @@
 #include <rthw.h>
 #include "ls1c.h"
 
-#define MAX_INTR 32
+#define MAX_INTR 160
 
 extern rt_uint32_t rt_interrupt_nest;
 rt_uint32_t rt_interrupt_from_thread;
