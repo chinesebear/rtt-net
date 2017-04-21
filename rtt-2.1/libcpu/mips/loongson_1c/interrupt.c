@@ -192,7 +192,6 @@ void rt_interrupt_dispatch(void *ptreg)
 
                 irq_func = irq_handle_table[irq].handler;
                 param = irq_handle_table[irq].param;
-				rt_kprintf("irq=%d\r\n", irq);
                 /* do interrupt */
                 irq_func(irq, param);
 
