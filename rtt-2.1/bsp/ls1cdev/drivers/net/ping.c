@@ -178,5 +178,5 @@ rt_err_t ping(char* target, rt_uint32_t time, rt_size_t size)
 }
 #ifdef RT_USING_FINSH
 #include <finsh.h>
-MSH_CMD_EXPORT(ping, ping network host)
+FINSH_FUNCTION_EXPORT(ping, ping network host)
 #endif
