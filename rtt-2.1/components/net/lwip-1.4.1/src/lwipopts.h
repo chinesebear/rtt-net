@@ -47,7 +47,7 @@
 /* ---------- Debug options ---------- */
 #ifdef LWIP_DEBUG
 #define SYS_DEBUG                   LWIP_DBG_OFF
-#define ETHARP_DEBUG                LWIP_DBG_ON
+#define ETHARP_DEBUG                LWIP_DBG_OFF
 #define PPP_DEBUG                   LWIP_DBG_OFF
 #define MEM_DEBUG                   LWIP_DBG_ON
 #define MEMP_DEBUG                  LWIP_DBG_ON
