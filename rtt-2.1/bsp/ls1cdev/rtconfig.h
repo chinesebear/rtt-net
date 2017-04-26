@@ -138,11 +138,11 @@
 #define RT_USING_LWIP
 #define RT_USING_GMAC_INT_MODE
 #define RT_USING_LWIP141
-
+#define RT_LWIP_DEBUG
 // <bool name="RT_LWIP_ICMP" description="Enable ICMP protocol" default="true" />
 #define RT_LWIP_ICMP
 // <bool name="RT_LWIP_IGMP" description="Enable IGMP protocol" default="false" />
-// #define RT_LWIP_IGMP
+#define RT_LWIP_IGMP
 // <bool name="RT_LWIP_UDP" description="Enable UDP protocol" default="true" />
 #define RT_LWIP_UDP
 // <bool name="RT_LWIP_TCP" description="Enable TCP protocol" default="true" />
