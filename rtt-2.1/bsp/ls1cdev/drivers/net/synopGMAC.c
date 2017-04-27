@@ -94,7 +94,7 @@ s32 synopGMAC_setup_tx_desc_queue(synopGMACdevice * gmacdev,u32 no_of_desc, u32 
 	gmacdev->TxDesc      = first_desc;
 	gmacdev->TxDescDma  = dma_addr;
 
-	for(i =0; i < gmacdev -> TxDescCount; i++){
+	for(i =0; i < gmacdev->TxDescCount; i++){
 		synopGMAC_tx_desc_init_ring(gmacdev->TxDesc + i, i == gmacdev->TxDescCount-1);
 #if SYNOP_TOP_DEBUG
 		rt_kprintf("\n%02d %08x \n",i,(unsigned int)(gmacdev->TxDesc + i));
@@ -154,9 +154,6 @@ s32 synopGMAC_setup_rx_desc_queue(synopGMACdevice * gmacdev,u32 no_of_desc, u32 
 	dma_addr_t dma_addr;
 
 	gmacdev->RxDescCount = 0;
-
-//	rt_kprintf("sizeof(DmaDesc) = %d, no_of_desc = %d\n", sizeof(DmaDesc),no_of_desc);
-//	rt_kprintf("sizeof(DmaDesc) * no_of_desc = %d\n",sizeof(DmaDesc) * no_of_desc);
 	first_desc =(DmaDesc *)plat_alloc_consistent_dmaable_memory (gmacdev, sizeof(DmaDesc) * no_of_desc, &dma_addr);
 	if(first_desc == NULL){
 		rt_kprintf("Error in Rx Descriptor Memory allocation in Ring mode\n");
@@ -169,7 +166,7 @@ s32 synopGMAC_setup_rx_desc_queue(synopGMACdevice * gmacdev,u32 no_of_desc, u32 
 	gmacdev->RxDesc      = (DmaDesc *)first_desc;
 	gmacdev->RxDescDma   = dma_addr;
 
-	for(i =0; i < gmacdev -> RxDescCount; i++){
+	for(i =0; i < gmacdev->RxDescCount; i++){
 		synopGMAC_rx_desc_init_ring(gmacdev->RxDesc + i, i == gmacdev->RxDescCount-1);
 
 	}
@@ -206,19 +203,12 @@ void synopGMAC_linux_cable_unplug_function(void *adaptr)
 		if(gmacdev->LinkState != data){
 			gmacdev->LinkState = data;
 			synopGMAC_mac_init(gmacdev);
-		//	TR("Link UP data=%08x\n",data);
-		//	TR("Link is up in %s mode\n",(gmacdev->DuplexMode == FULLDUPLEX) ? "FULL DUPLEX": "HALF DUPLEX");
-			rt_kprintf("\r\n");
-//			rt_kprintf("Link UP data=%08x\n",data);
 			rt_kprintf("Link is up in %s mode\n",(gmacdev->DuplexMode == FULLDUPLEX) ? "FULL DUPLEX": "HALF DUPLEX");
 			if(gmacdev->Speed == SPEED1000)
-		//		TR("Link is with 1000M Speed \n");
 				rt_kprintf("Link is with 1000M Speed \r\n");
 			if(gmacdev->Speed == SPEED100)
-		//		TR("Link is with 100M Speed \n");
 				rt_kprintf("Link is with 100M Speed \n");
 			if(gmacdev->Speed == SPEED10)
-		//		TR("Link is with 10M Speed \n");
 				rt_kprintf("Link is with 10M Speed \n");
 		}
 	}
@@ -681,36 +671,19 @@ struct pbuf *rt_eth_rx(rt_device_t device)
 	if(desc_index >= 0 && data1 != 0){
 		DEBUG_MES("Received Data at Rx Descriptor %d for skb 0x%08x whose status is %08x\n",desc_index,dma_addr1,status);
 
-		if(synopGMAC_is_rx_desc_valid(status)||SYNOP_PHY_LOOPBACK){
-			//				skb = getmbuf(adapter);
-			//pbuf = pbuf_alloc(PBUF_LINK, sizeof(*pbuf) + RX_BUF_SIZE, PBUF_RAM);
+		if(synopGMAC_is_rx_desc_valid(status)||SYNOP_PHY_LOOPBACK)
+		{
 			pbuf = pbuf_alloc(PBUF_LINK, MAX_ETHERNET_PAYLOAD, PBUF_RAM);
-			if(pbuf == 0)
-#if SYNOP_RX_DEBUG
-				rt_kprintf("===error in pbuf_alloc\n");
-#else
-			;
-#endif
+			if(pbuf == 0) rt_kprintf("===error in pbuf_alloc\n");
+
 
 			dma_addr1 =  plat_dma_map_single(gmacdev,(void*)data1,RX_BUF_SIZE);
-			//len =  synopGMAC_get_rx_desc_frame_length(status) - 4; //Not interested in Ethernet CRC bytes
 			len =  synopGMAC_get_rx_desc_frame_length(status); //Not interested in Ethernet CRC bytes
-			//				bcopy((char *)data1, mtod(skb, char *), len);
 			rt_memcpy( pbuf->payload, (char *)data1, len);
 			DEBUG_MES("==get pkg len: %d\n",len);
-#if 0
-			skb->m_pkthdr.rcvif = ifp;
-			skb->m_pkthdr.len = skb->m_len = len - sizeof(struct ether_header);
-
-			eh = mtod(skb, struct ether_header *);
-			skb->m_data += sizeof(struct ether_header);
-
-			ether_input(ifp, eh, skb);
-			adapter->synopGMACNetStats.rx_packets++;
-			adapter->synopGMACNetStats.rx_bytes += len;
-#endif
 		}
-		else{
+		else
+		{
 			rt_kprintf("s: %08x\n",status);
 			adapter->synopGMACNetStats.rx_errors++;
 			adapter->synopGMACNetStats.collisions       += synopGMAC_is_rx_frame_collision(status);

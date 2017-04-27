@@ -2138,11 +2138,6 @@ s32 synopGMAC_set_rx_qptr(synopGMACdevice * gmacdev, u32 Buffer1, u32 Length1, u
 	u32  rxnext      = gmacdev->RxNext;
 	DmaDesc * rxdesc = gmacdev->RxNextDesc;
 
-/* sw	
-	if(synopGMAC_is_desc_owned_by_dma(rxdesc))
-		return -1;
-*/
-
 	if(!synopGMAC_is_desc_empty(rxdesc))
 		return -1;
 
@@ -2181,10 +2176,7 @@ s32 synopGMAC_set_rx_qptr(synopGMACdevice * gmacdev, u32 Buffer1, u32 Length1, u
 	TR("%02d %08x %08x %08x %08x %08x %08x %08x\n",rxnext,(u32)rxdesc,rxdesc->status,rxdesc->length,rxdesc->buffer1,rxdesc->buffer2,rxdesc->data1,rxdesc->data2);
 #endif
 	(gmacdev->BusyRxDesc)++; //One descriptor will be given to Hardware. So busy count incremented by one
-	//pci_sync_cache(0, (vm_offset_t)rxdesc,64, SYNC_W);
-#if SYNOP_RX_DEBUG
-	//printf("Cache sync after re-set the rx dma desc! \n");
-#endif
+
 	return rxnext;
 }
 
@@ -2327,7 +2319,6 @@ s32 synopGMAC_get_rx_qptr(synopGMACdevice * gmacdev, u32 * Status, u32 * Buffer1
   * @param[out] virtual pointer for buffer2.
   * \return returns present rx descriptor index on success. Negative value if error.
   */
-//										(gmacdev     &status     &dma_addr1      NULL           &data1      &dma_addr2    NULL   &data2)
 s32 synopGMAC_get_rx_qptr(synopGMACdevice * gmacdev, u32 * Status, u32 * Buffer1, u32 * Length1, u32 * Data1, u32 * Buffer2, u32 * Length2, u32 * Data2)
 {
 	u32 rxnext       = gmacdev->RxBusy;	// index of descriptor the DMA just completed. May be useful when data 
@@ -2335,28 +2326,15 @@ s32 synopGMAC_get_rx_qptr(synopGMACdevice * gmacdev, u32 * Status, u32 * Buffer1
 	DmaDesc * rxdesc = gmacdev->RxBusyDesc;
 
 	u32 len;
-
-
-	//pci_sync_cache(0, (vm_offset_t)rxdesc, 64, SYNC_R);
-	//pci_sync_cache(0, (vm_offset_t)rxdesc, 64, SYNC_W);
-#if 0
-	printf("Cache sync before get rx dma desc!\n");
-	printf("DmaDesc->status = 0x%x\n", rxdesc->status);
-#endif
 	if(synopGMAC_is_desc_owned_by_dma(rxdesc))
 	{
 		DEBUG_MES("synopGMAC_get_rx_qptr:DMA descriptor is owned by GMAC!\n");
 		return -1;
 	}
-	
-//			printf("owned!\n");
-//	return -1;
 		
 	if(synopGMAC_is_desc_empty(rxdesc))
 	{
-#if 1
-		rt_kprintf("synopGMAC_get_rx_qptr:rx desc is empty!\n");
-#endif
+		DEBUG_MES("synopGMAC_get_rx_qptr:rx desc is empty!\n");
 		return -1;
 	}
 
@@ -2377,35 +2355,25 @@ s32 synopGMAC_get_rx_qptr(synopGMACdevice * gmacdev, u32 * Status, u32 * Buffer1
 		*Data2 = rxdesc->data2;
 
 	len =  synopGMAC_get_rx_desc_frame_length(*Status);
-	//pci_sync_cache(0, (vm_offset_t)Data1, len, SYNC_R);
-	//pci_sync_cache(0, (vm_offset_t)Data1, len, SYNC_W);
 	DEBUG_MES("Cache sync for data buffer in rx dma desc: length = 0x%x\n",len);
 	gmacdev->RxBusy     = synopGMAC_is_last_rx_desc(gmacdev,rxdesc) ? 0 : rxnext + 1;
-
 	if(synopGMAC_is_rx_desc_chained(rxdesc)){
 	   	gmacdev->RxBusyDesc = (DmaDesc *)rxdesc->data2;
 		synopGMAC_rx_desc_init_chain(rxdesc);
-		//synopGMAC_desc_init_chain(rxdesc, synopGMAC_is_last_rx_desc(gmacdev,rxdesc),0,0);
 	}
 	else{
 		gmacdev->RxBusyDesc = synopGMAC_is_last_rx_desc(gmacdev,rxdesc) ? gmacdev->RxDesc : (rxdesc + 1);
 //sw: raw data		
 #if SYNOP_RX_DEBUG
-		printf("%02d %08x %08x %08x %08x %08x %08x %08x\n",rxnext,(u32)rxdesc,rxdesc->status,rxdesc->length,rxdesc->buffer1,rxdesc->buffer2,rxdesc->data1,rxdesc->data2);
+		DEBUG_MES("%02d %08x %08x %08x %08x %08x %08x %08x\n",rxnext,(u32)rxdesc,rxdesc->status,rxdesc->length,rxdesc->buffer1,rxdesc->buffer2,rxdesc->data1,rxdesc->data2);
 #endif
 		synopGMAC_rx_desc_init_ring(rxdesc, synopGMAC_is_last_rx_desc(gmacdev,rxdesc));
-		//synopGMAC_rx_desc_recycle(rxdesc, synopGMAC_is_last_rx_desc(gmacdev,rxdesc));
 	}
 #if SYNOP_RX_DEBUG
-	TR("%02d %08x %08x %08x %08x %08x %08x %08x\n",rxnext,(u32)rxdesc,rxdesc->status,rxdesc->length,rxdesc->buffer1,rxdesc->buffer2,rxdesc->data1,rxdesc->data2);
+	DEBUG_MES("%02d %08x %08x %08x %08x %08x %08x %08x\n",rxnext,(u32)rxdesc,rxdesc->status,rxdesc->length,rxdesc->buffer1,rxdesc->buffer2,rxdesc->data1,rxdesc->data2);
 #endif
 
 	(gmacdev->BusyRxDesc)--; //This returns one descriptor to processor. So busy count will be decremented by one
-				 //sw: it's BusyRxDesc but not RxBusyDesc -_-
-	//pci_sync_cache(0, (vm_offset_t)rxdesc, 64, SYNC_W);
-#if 0
-	printf("Cache sync after clear the rx dma desc!\n");
-#endif
 	return(rxnext);
 
 }

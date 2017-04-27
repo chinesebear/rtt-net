@@ -139,6 +139,9 @@
 #define RT_USING_GMAC_INT_MODE
 #define RT_USING_LWIP141
 #define RT_LWIP_DEBUG
+#define RT_LWIP_USING_RT_MEM
+
+
 // <bool name="RT_LWIP_ICMP" description="Enable ICMP protocol" default="true" />
 #define RT_LWIP_ICMP
 // <bool name="RT_LWIP_IGMP" description="Enable IGMP protocol" default="false" />
@@ -151,6 +154,7 @@
 #define RT_LWIP_DNS
 // <integer name="RT_LWIP_PBUF_NUM" description="Maximal number of buffers in the pbuf pool" default="4" />
 #define RT_LWIP_PBUF_NUM	4
+#define RT_LWIP_PBUF_POOL_BUFSIZE 2048
 // <integer name="RT_LWIP_TCP_PCB_NUM" description="Maximal number of simultaneously active TCP connections" default="5" />
 #define RT_LWIP_TCP_PCB_NUM	3
 // <integer name="RT_LWIP_TCP_SND_BUF" description="TCP sender buffer size" default="8192" />

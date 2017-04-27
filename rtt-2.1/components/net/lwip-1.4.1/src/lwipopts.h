@@ -51,7 +51,7 @@
 #define PPP_DEBUG                   LWIP_DBG_OFF
 #define MEM_DEBUG                   LWIP_DBG_ON
 #define MEMP_DEBUG                  LWIP_DBG_ON
-#define PBUF_DEBUG                  LWIP_DBG_OFF
+#define PBUF_DEBUG                  LWIP_DBG_ON
 #define API_LIB_DEBUG               LWIP_DBG_OFF
 #define API_MSG_DEBUG               LWIP_DBG_OFF
 #define TCPIP_DEBUG                 LWIP_DBG_ON

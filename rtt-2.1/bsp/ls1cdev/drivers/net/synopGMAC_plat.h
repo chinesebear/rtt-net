@@ -36,16 +36,7 @@
 #define IOCTL_POWER_DOWN     SIOCDEVPRIVATE+6
 
 #define SYNOP_GMAC0 1
-//#define SYNOP_GMAC1 1
 
-//typedef unsigned long long  u64;
-//typedef unsigned long  u32;
-//typedef unsigned short u16;
-//typedef unsigned char  u8;
-//typedef signed long long  s64;
-//typedef signed long  s32;
-//typedef signed short s16;
-//typedef signed char  s8;
 typedef int bool;
 //typedef unsigned long dma_addr_t;
 

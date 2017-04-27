@@ -32,16 +32,6 @@
 
 //sw:	typedef are included in synopGMAC_plat.h
 //	it is strange that we should add it here again!!
-/*
-typedef unsigned long  u32;
-typedef unsigned short u16;
-typedef unsigned char  u8;
-typedef signed long  s32;
-typedef signed short s16;
-typedef signed char  s8;
-typedef int bool;
-typedef unsigned long dma_addr_t;
-*/
 
 /*SynopGMAC can support up to 32 phys*/
 #define GMAC_PHY_BASE 1
