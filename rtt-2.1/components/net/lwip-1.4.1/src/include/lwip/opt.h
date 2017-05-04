@@ -1202,7 +1202,7 @@
  * @todo: TCP and IP-frag do not work with this, yet:
  */
 #ifndef LWIP_NETIF_TX_SINGLE_PBUF
-#define LWIP_NETIF_TX_SINGLE_PBUF             0
+#define LWIP_NETIF_TX_SINGLE_PBUF             1
 #endif /* LWIP_NETIF_TX_SINGLE_PBUF */
 
 /*
