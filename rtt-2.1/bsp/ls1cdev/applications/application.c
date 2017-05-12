@@ -20,6 +20,8 @@
 #include <lwip/api.h>
 
 #define TCP_ECHO_PORT   7
+#define UDP_ECHO_PORT   7
+
 #define printf rt_kprintf
 
 static void DumpData(const rt_uint8_t *pcStr,rt_uint8_t *pucBuf,rt_uint32_t usLen)
@@ -107,7 +109,7 @@ void rt_tcpecho_entry(void *parameter)
 	/* Create a new connection identifier. */
 	conn = netconn_new(NETCONN_TCP);
 	/* Bind connection to well known port number 7. */
-	netconn_bind(conn, NULL, TCP_ECHO_PORT);
+	netconn_bind(conn, IP_ADDR_ANY, TCP_ECHO_PORT);
 	/* Tell connection to go into listening mode. */
 	netconn_listen(conn);
 	for(;;)
@@ -122,7 +124,7 @@ void rt_tcpecho_entry(void *parameter)
 				do
 				{
 					netbuf_data(buf, &data, &len);
-					DumpData("payload_rx",data,len);
+					//DumpData("payload_rx",data,len);
 					err = netconn_write(newconn, data, len, NETCONN_COPY);
 					if(err != ERR_OK)
 					{
@@ -138,6 +140,36 @@ void rt_tcpecho_entry(void *parameter)
 		}
 	}
 }
+void rt_udpecho_entry(void *parameter)
+{	
+	struct netconn *conn;	
+	struct netbuf *buf;	
+	struct ip_addr *addr;	
+	unsigned short port;	
+	rt_kprintf("udpecho server start...\r\n");
+	conn = netconn_new(NETCONN_UDP);	
+	netconn_bind(conn, IP_ADDR_ANY, UDP_ECHO_PORT);	
+	for(;;)	
+	{       
+		/* received data to buffer */		
+		netconn_recv(conn,&buf);
+		if(buf)
+		{
+			addr = netbuf_fromaddr(buf);		
+			port = netbuf_fromport(buf);        
+			/* send the data to buffer */		
+			netconn_connect(conn, addr, port);		
+			/* reset address, and send to client */	
+			rt_memset(&(buf->addr),0x00,sizeof(ip_addr_t));
+			//buf->addr = RT_NULL;
+			netconn_send(conn, buf); 
+		}
+       
+		/* release buffer */		
+		netbuf_delete(buf);
+		buf = RT_NULL;
+	}
+}
 
 void rt_init_thread_entry(void *parameter)
 {
@@ -149,7 +181,7 @@ void rt_init_thread_entry(void *parameter)
 
 int rt_application_init(void)
 {
-	rt_thread_t tid,echo_tid;
+	rt_thread_t tid,echo_tid,udpecho_tid;
 
 	/* create initialization thread */
 	tid = rt_thread_create("init",
@@ -163,6 +195,12 @@ int rt_application_init(void)
 				            4096, 30, 5);
     if (echo_tid != RT_NULL)
             rt_thread_startup(echo_tid);
+
+	udpecho_tid = rt_thread_create("udpecho",
+							rt_udpecho_entry, RT_NULL,
+				            4096, 30, 5);
+    if (udpecho_tid != RT_NULL)
+            rt_thread_startup(udpecho_tid);
 
 	return 0;
 }
