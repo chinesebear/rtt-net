@@ -948,7 +948,6 @@ void eth_rx_irq(int irqno,void *param)
 			synopGMACWriteReg(gmacdev->DmaBase, DmaStatus ,0x80);
 			synopGMAC_resume_dma_rx(gmacdev);
 		}
-#endif
 	}
 	if(interrupt & synopGMACDmaRxStopped){
 		rt_kprintf("%s::Receiver stopped seeing Rx interrupts\n",__FUNCTION__); //Receiver gone in to stopped state
