@@ -942,15 +942,7 @@ void eth_rx_irq(int irqno,void *param)
 		eth_device_ready(&eth_dev.parent);
 	}
 	if(interrupt & synopGMACDmaRxAbnormal){
-		rt_kprintf("%s::Abnormal Rx Interrupt Seen\n",__FUNCTION__);
-		//rt_kprintf("Gmac_intr: dma_status = 0x%08x\n",dma_status_reg);
-#if 0
-		rt_kprintf("gmacdev->DmaBase = 0x%x\n", gmacdev->DmaBase);
-		rt_kprintf("gmacstatus = 0x%x\n", gmacstatus);
-		rt_kprintf("dmastatus = 0x%x\n", dma_status_reg);
-#endif
-#if 1
-
+		//rt_kprintf("%s::Abnormal Rx Interrupt Seen\n",__FUNCTION__);
 		if(GMAC_Power_down == 0){
 			adapter->synopGMACNetStats.rx_over_errors++;
 			synopGMACWriteReg(gmacdev->DmaBase, DmaStatus ,0x80);
