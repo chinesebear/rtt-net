@@ -153,21 +153,15 @@ void rt_udpecho_entry(void *parameter)
 	{       
 		/* received data to buffer */		
 		netconn_recv(conn,&buf);
-		if(buf)
-		{
-			addr = netbuf_fromaddr(buf);		
-			port = netbuf_fromport(buf);        
-			/* send the data to buffer */		
-			netconn_connect(conn, addr, port);		
-			/* reset address, and send to client */	
-			rt_memset(&(buf->addr),0x00,sizeof(ip_addr_t));
-			//buf->addr = RT_NULL;
-			netconn_send(conn, buf); 
-		}
-       
+		addr = netbuf_fromaddr(buf);		
+		port = netbuf_fromport(buf);        
+		/* send the data to buffer */		
+		netconn_connect(conn, addr, port);		
+		/* reset address, and send to client */	
+		buf->addr.addr = 0;
+		netconn_send(conn, buf); 
 		/* release buffer */		
 		netbuf_delete(buf);
-		buf = RT_NULL;
 	}
 }
 
